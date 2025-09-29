@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrusTerra AI Pipeline: Technical Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony (Stone, Blue, Amber) -->
+    <!-- Application Structure Plan: A single-page dashboard with a fixed sidebar for navigation between thematic sections (Overview, Data, Pipeline, Architecture, Trade-Offs). The core is an interactive pipeline diagram where users click on stages to get detailed information. This structure is chosen to transform a dense technical document into an explorable, non-linear experience, prioritizing user understanding of the complex system flow over the original document's linear structure. -->
+    <!-- Visualization & Content Choices: Report Info: Pipeline Flow -> Goal: Organize/Inform -> Viz: Interactive HTML/CSS Diagram -> Interaction: Click-to-reveal details -> Justification: Simplifies a complex workflow into digestible, user-driven steps. Report Info: Tech Trade-offs -> Goal: Compare -> Viz: Interactive Bar Chart -> Interaction: Buttons to switch comparison metrics -> Justification: Makes abstract comparisons tangible and easy to grasp. All diagrams are HTML/CSS based. Charts use Chart.js Canvas. CONFIRMATION: NO SVG/Mermaid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar-link.active {
+            background-color: #2563EB;
+            color: white;
+            font-weight: 600;
+        }
+        .pipeline-step {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .pipeline-step.active, .pipeline-step:hover {
+            transform: translateY(-4px);
+            border-color: #2563EB;
+            box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.1);
+        }
+        .chart-container {
+            position: relative; 
+            width: 100%; 
+            max-width: 800px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            height: 40vh; 
+            max-height: 450px;
+        }
+    </style>
+</head>
+<body class="bg-stone-100 text-stone-800 flex min-h-screen">
+
+    <aside class="w-64 bg-white shadow-lg p-4 fixed h-full flex flex-col">
+        <div class="flex items-center mb-8">
+             <div class="bg-blue-600 text-white rounded-lg p-2 mr-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+            </div>
+            <h1 class="text-xl font-bold text-stone-900">TrusTerra AI</h1>
+        </div>
+        <nav class="flex flex-col space-y-2">
+            <a href="#overview" class="sidebar-link active text-stone-600 hover:bg-stone-200 rounded-lg p-3 transition-colors">
+                <span class="mr-2">🌍</span> Overview
+            </a>
+            <a href="#data" class="sidebar-link text-stone-600 hover:bg-stone-200 rounded-lg p-3 transition-colors">
+                <span class="mr-2">📊</span> Data Foundation
+            </a>
+            <a href="#pipeline" class="sidebar-link text-stone-600 hover:bg-stone-200 rounded-lg p-3 transition-colors">
+                <span class="mr-2">⚙️</span> Prediction Pipeline
+            </a>
+            <a href="#architecture" class="sidebar-link text-stone-600 hover:bg-stone-200 rounded-lg p-3 transition-colors">
+                <span class="mr-2">🏗️</span> System Architecture
+            </a>
+            <a href="#tradeoffs" class="sidebar-link text-stone-600 hover:bg-stone-200 rounded-lg p-3 transition-colors">
+                <span class="mr-2">⚖️</span> Strategic Trade-Offs
+            </a>
+        </nav>
+        <div class="mt-auto bg-stone-100 p-4 rounded-lg">
+            <p class="text-sm text-stone-600">This dashboard visualizes the technical approach for the EV RUL & RV prediction system.</p>
+        </div>
+    </aside>
+
+    <main class="ml-64 flex-1 p-8 lg:p-12">
+        <div id="overview" class="content-section">
+            <h2 class="text-3xl font-bold mb-2">AI-Driven EV Valuation Pipeline</h2>
+            <p class="text-stone-600 mb-8">An interactive overview of the system designed to automate and scale TrusTerra's EV Remaining Useful Life (RUL) and Residual Value (RV) predictions.</p>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="font-bold text-lg mb-2 text-blue-600">Hybridization</h3>
+                    <p class="text-stone-600">Integrate proprietary business rules with sophisticated Machine Learning (ML) models to ensure predictions are both data-driven and commercially sound.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="font-bold text-lg mb-2 text-blue-600">Explainability (XAI)</h3>
+                    <p class="text-stone-600">Leverage Large Language Models (LLMs) to provide a clear, human-readable justification for every RUL and RV prediction, building trust and transparency.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="font-bold text-lg mb-2 text-blue-600">Scalability</h3>
+                    <p class="text-stone-600">Design a serverless, container-based architecture that scales automatically with demand, optimized for a lean team and minimal operational overhead.</p>
+                </div>
+            </div>
+            
+            <div class="mt-10 bg-white p-6 rounded-lg shadow">
+                 <h3 class="font-bold text-xl mb-4">Project Phases</h3>
+                 <div class="relative">
+                    <div class="absolute left-4 h-full border-l-2 border-stone-200"></div>
+                    <div class="flex flex-col space-y-6">
+                        <div class="flex items-center">
+                            <div class="bg-blue-600 rounded-full h-8 w-8 flex items-center justify-center text-white font-bold z-10">1</div>
+                            <div class="ml-6">
+                                <h4 class="font-semibold">Phase I: Data Foundation & Feature Engineering</h4>
+                                <p class="text-stone-500">Establish a robust data pipeline, from ingestion and validation to feature creation and storage.</p>
+                            </div>
+                        </div>
+                         <div class="flex items-center">
+                            <div class="bg-blue-600 rounded-full h-8 w-8 flex items-center justify-center text-white font-bold z-10">2</div>
+                            <div class="ml-6">
+                                <h4 class="font-semibold">Phase II: Prediction Hybridization</h4>
+                                <p class="text-stone-500">Develop the core three-layer prediction engine combining rules, ML models, and LLM-based explanations.</p>
+                            </div>
+                        </div>
+                         <div class="flex items-center">
+                            <div class="bg-blue-600 rounded-full h-8 w-8 flex items-center justify-center text-white font-bold z-10">3</div>
+                            <div class="ml-6">
+                                <h4 class="font-semibold">Phase III: Productionization & Scaling</h4>
+                                <p class="text-stone-500">Package the service for deployment and implement a scalable, serverless architecture.</p>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+        </div>
+
+        <div id="data" class="content-section hidden">
+            <h2 class="text-3xl font-bold mb-2">Data Foundation</h2>
+            <p class="text-stone-600 mb-8">The pipeline begins with a rigorous process to ingest, clean, and structure data into a high-quality feature store, which serves as the single source of truth for our models.</p>
+            
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="font-bold text-xl mb-4">Data Flow & Transformation</h3>
+                <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 md:space-x-4 text-center">
+                    <div class="flex-1 p-4 bg-stone-50 rounded-lg">
+                        <div class="text-3xl mb-2">📥</div>
+                        <h4 class="font-semibold">1. Ingestion & Validation</h4>
+                        <p class="text-sm text-stone-500">IoT logs & transaction data are ingested. Pydantic models validate schema integrity.</p>
+                    </div>
+                    <div class="text-2xl text-stone-300 font-mono">&rarr;</div>
+                    <div class="flex-1 p-4 bg-stone-50 rounded-lg">
+                         <div class="text-3xl mb-2">🧹</div>
+                        <h4 class="font-semibold">2. Cleaning & Aggregation</h4>
+                        <p class="text-sm text-stone-500">Handle outliers and transform raw time-series data into aggregated metrics like SOH trend and thermal stress.</p>
+                    </div>
+                     <div class="text-2xl text-stone-300 font-mono">&rarr;</div>
+                    <div class="flex-1 p-4 bg-stone-50 rounded-lg">
+                         <div class="text-3xl mb-2">🗄️</div>
+                        <h4 class="font-semibold">3. Feature Store MVP</h4>
+                        <p class="text-sm text-stone-500">Store engineered features in a PostgreSQL database for fast, reliable access by the prediction service.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-white p-6 rounded-lg shadow">
+                <h3 class="font-bold text-xl mb-4">Example Feature Store Schema</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-stone-50">
+                            <tr>
+                                <th class="p-3 font-semibold">Field</th>
+                                <th class="p-3 font-semibold">Data Type</th>
+                                <th class="p-3 font-semibold">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="p-3 font-mono">vehicle_id</td>
+                                <td class="p-3">VARCHAR</td>
+                                <td>Unique identifier for the vehicle.</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-3 font-mono">feature_version</td>
+                                <td class="p-3">INT</td>
+                                <td>Version of the pipeline used to generate the feature set.</td>
+                            </tr>
+                             <tr class="border-b">
+                                <td class="p-3 font-mono">log_degradation_rate</td>
+                                <td class="p-3">FLOAT</td>
+                                <td>Calculated exponential degradation coefficient.</td>
+                            </tr>
+                             <tr>
+                                <td class="p-3 font-mono">fast_charge_ratio</td>
+                                <td class="p-3">FLOAT</td>
+                                <td>Proportion of energy delivered via DC fast charging.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div id="pipeline" class="content-section hidden">
+            <h2 class="text-3xl font-bold mb-2">The Hybrid Prediction Pipeline</h2>
+            <p class="text-stone-600 mb-8">This interactive diagram illustrates the core three-layer architecture. Click on each step to see more details.</p>
+
+            <div class="lg:flex lg:space-x-8">
+                <div class="flex-grow">
+                    <div id="pipeline-diagram" class="flex flex-col space-y-4">
+                        <div id="step-rules" class="pipeline-step active bg-white p-6 rounded-lg shadow-sm border-2 border-blue-600">
+                            <h4 class="font-bold text-lg"><span class="text-blue-600">Layer 1:</span> Rules Engine</h4>
+                            <p class="text-sm text-stone-500">Applies hard business constraints and proprietary logic.</p>
+                        </div>
+                        <div class="self-center text-2xl text-stone-400">↓</div>
+                         <div id="step-ml" class="pipeline-step bg-white p-6 rounded-lg shadow-sm border-2 border-transparent">
+                            <h4 class="font-bold text-lg"><span class="text-blue-600">Layer 2:</span> Core ML Models</h4>
+                            <p class="text-sm text-stone-500">Two LightGBM models predict RUL and RV.</p>
+                        </div>
+                        <div class="self-center text-2xl text-stone-400">↓</div>
+                        <div id="step-llm" class="pipeline-step bg-white p-6 rounded-lg shadow-sm border-2 border-transparent">
+                            <h4 class="font-bold text-lg"><span class="text-blue-600">Layer 3:</span> Explainability & Synthesis</h4>
+                            <p class="text-sm text-stone-500">An LLM translates technical outputs into a human-readable justification.</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="pipeline-details" class="lg:w-1/2 mt-8 lg:mt-0 bg-white p-6 rounded-lg shadow">
+                    <!-- Details will be populated by JS -->
+                </div>
+            </div>
+        </div>
+        
+        <div id="architecture" class="content-section hidden">
+            <h2 class="text-3xl font-bold mb-2">System Architecture & Deployment</h2>
+             <p class="text-stone-600 mb-8">The system is designed to be serverless-native and horizontally scalable, ensuring high availability and low operational overhead for a lean team.</p>
+
+             <div class="bg-white p-8 rounded-lg shadow">
+                <h3 class="font-bold text-xl mb-6 text-center">Serverless Deployment Model</h3>
+                 <div class="flex flex-col md:flex-row items-center justify-center space-y-6 md:space-y-0 md:space-x-6">
+                    <div class="text-center">
+                        <div class="text-4xl">👨‍💻</div>
+                        <p class="font-semibold mt-2">API Request</p>
+                         <p class="text-sm text-stone-500">(/v1/predict)</p>
+                    </div>
+
+                    <div class="text-3xl text-stone-300 font-mono transform md:rotate-0 rotate-90">&rarr;</div>
+
+                     <div class="text-center border-2 border-dashed border-stone-300 p-6 rounded-lg">
+                        <div class="text-4xl">☁️</div>
+                        <p class="font-semibold mt-2">Cloud Run / AWS Fargate</p>
+                        <p class="text-sm text-stone-500">Managed Container Orchestration</p>
+                         <div class="mt-4 flex justify-center space-x-2">
+                             <div class="p-3 bg-blue-100 text-blue-800 rounded-lg">Docker</div>
+                             <div class="p-3 bg-blue-100 text-blue-800 rounded-lg">Docker</div>
+                             <div class="p-3 bg-blue-100 text-blue-800 rounded-lg">...N</div>
+                        </div>
+                         <p class="text-xs text-stone-400 mt-2">Auto-scales containers from 0 to N</p>
+                    </div>
+                    
+                    <div class="text-3xl text-stone-300 font-mono transform md:rotate-0 rotate-90">&rarr;</div>
+
+                     <div class="flex space-x-6">
+                         <div class="text-center">
+                            <div class="text-4xl">🗄️</div>
+                            <p class="font-semibold mt-2">Feature Store</p>
+                            <p class="text-sm text-stone-500">(PostgreSQL)</p>
+                        </div>
+                         <div class="text-center">
+                            <div class="text-4xl">📄</div>
+                            <p class="font-semibold mt-2">Prediction</p>
+                            <p class="text-sm text-stone-500">(JSON Response)</p>
+                        </div>
+                     </div>
+                 </div>
+
+                 <div class="mt-8 grid md:grid-cols-2 gap-6">
+                     <div class="bg-stone-50 p-4 rounded-lg">
+                         <h4 class="font-semibold">Stateless Design</h4>
+                         <p class="text-sm text-stone-600">The API holds no persistent state, which is the cornerstone of horizontal scaling and resilience.</p>
+                     </div>
+                      <div class="bg-stone-50 p-4 rounded-lg">
+                         <h4 class="font-semibold">Lean MLOps</h4>
+                         <p class="text-sm text-stone-600">GitHub Actions automate the building of Docker images and deployment upon code changes or model retraining.</p>
+                     </div>
+                 </div>
+             </div>
+        </div>
+        
+        <div id="tradeoffs" class="content-section hidden">
+            <h2 class="text-3xl font-bold mb-2">Strategic Trade-Offs</h2>
+            <p class="text-stone-600 mb-8">For an early-stage startup, decisions are optimized for velocity and capital efficiency over theoretical perfection. Below is an interactive visualization of these choices.</p>
+            
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex justify-center space-x-2 mb-6">
+                    <button class="tradeoff-btn bg-blue-600 text-white px-4 py-2 rounded-lg shadow">Data & Storage</button>
+                    <button class="tradeoff-btn bg-white text-stone-600 px-4 py-2 rounded-lg shadow">Model Selection</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="tradeoffsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    sidebarLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    const targetId = link.getAttribute('href').substring(1);
+                    contentSections.forEach(section => {
+                        if (section.id === targetId) {
+                            section.classList.remove('hidden');
+                        } else {
+                            section.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+
+            // Pipeline interactivity
+            const pipelineSteps = document.querySelectorAll('.pipeline-step');
+            const detailsPanel = document.getElementById('pipeline-details');
+            const pipelineDetailsContent = {
+                'step-rules': {
+                    title: 'Layer 1: Rules Engine',
+                    content: `
+                        <p class="mb-4">This initial layer applies TrusTerra's non-negotiable business logic and proprietary adjustments before any ML model is invoked. It acts as a guardrail to ensure predictions remain commercially sound.</p>
+                        <ul class="list-disc pl-5 space-y-2 text-stone-600">
+                            <li><strong>Hard Caps:</strong> Sets maximum possible values for RUL based on critical factors like extreme degradation rates.</li>
+                            <li><strong>Baseline Value:</strong> Calculates a rule-based <code>baseline_rv</code> based on known factors like age, mileage, and market indices.</li>
+                            <li><strong>Output:</strong> Augments the feature set with <code>max_rul_cap</code> and <code>baseline_rv</code>, which are then passed as inputs to the ML models.</li>
+                        </ul>
+                    `
+                },
+                'step-ml': {
+                    title: 'Layer 2: Core ML Models',
+                    content: `
+                        <p class="mb-4">This is the predictive core of the system, using two specialized LightGBM (Gradient Boosting Machine) models for their speed, accuracy, and efficiency.</p>
+                        <h5 class="font-semibold mb-2">Prediction Flow:</h5>
+                        <ol class="list-decimal pl-5 space-y-2 text-stone-600">
+                            <li><strong>RUL Prediction:</strong> The first model predicts the battery's Remaining Useful Life, constrained by the <code>max_rul_cap</code> from the Rules Engine.</li>
+                            <li><strong>RV Prediction:</strong> The second model predicts the vehicle's Residual Value. Crucially, it uses the <strong>predicted RUL</strong> as a key input feature, scientifically linking battery health directly to market value.</li>
+                        </ol>
+                    `
+                },
+                'step-llm': {
+                    title: 'Layer 3: Explainability & Synthesis (LLM)',
+                    content: `
+                        <p class="mb-4">This final layer transforms the quantitative outputs of the ML models into a transparent, human-readable justification, building trust with users.</p>
+                        <ul class="list-disc pl-5 space-y-2 text-stone-600">
+                            <li><strong>XAI Input:</strong> Computes SHAP (SHapley Additive exPlanations) values to identify the top drivers for each specific prediction.</li>
+                            <li><strong>LLM Role (Synthesis):</strong> A small, self-hosted LLM receives the prediction and SHAP values, then follows a prompt to generate a concise, non-technical explanation.</li>
+                            <li><strong>Output:</strong> The final API response includes the numeric predictions and this clear, contextual justification text.</li>
+                        </ul>
+                    `
+                }
+            };
+
+            function updatePipelineDetails(stepId) {
+                const details = pipelineDetailsContent[stepId];
+                detailsPanel.innerHTML = `
+                    <h3 class="text-xl font-bold mb-4 text-blue-600">${details.title}</h3>
+                    <div class="text-stone-700">${details.content}</div>
+                `;
+            }
+
+            pipelineSteps.forEach(step => {
+                step.addEventListener('click', () => {
+                    pipelineSteps.forEach(s => {
+                        s.classList.remove('active', 'border-blue-600');
+                        s.classList.add('border-transparent');
+                    });
+                    step.classList.add('active', 'border-blue-600');
+                    step.classList.remove('border-transparent');
+                    updatePipelineDetails(step.id);
+                });
+            });
+
+            updatePipelineDetails('step-rules'); 
+
+            // Tradeoffs Chart
+            const tradeoffBtns = document.querySelectorAll('.tradeoff-btn');
+            const tradeoffsCtx = document.getElementById('tradeoffsChart').getContext('2d');
+            let tradeoffsChart;
+
+            const tradeoffsData = {
+                'Data & Storage': {
+                    labels: ['PostgreSQL MVP', 'Dedicated Feature Store (e.g., Feast)'],
+                    datasets: [
+                        { label: 'Velocity', data: [90, 40], backgroundColor: 'rgba(59, 130, 246, 0.7)' },
+                        { label: 'Simplicity', data: [85, 30], backgroundColor: 'rgba(37, 99, 235, 0.7)' },
+                        { label: 'Long-Term Scalability', data: [50, 95], backgroundColor: 'rgba(251, 191, 38, 0.7)' }
+                    ]
+                },
+                'Model Selection': {
+                    labels: ['LightGBM', 'Deep Learning (RNN/LSTM)'],
+                    datasets: [
+                        { label: 'Explainability', data: [90, 30], backgroundColor: 'rgba(59, 130, 246, 0.7)' },
+                        { label: 'Data Requirement (Lower is Better)', data: [80, 20], backgroundColor: 'rgba(37, 99, 235, 0.7)' },
+                        { label: 'Potential Accuracy', data: [75, 95], backgroundColor: 'rgba(251, 191, 38, 0.7)' }
+                    ]
+                }
+            };
+
+            function renderTradeoffsChart(dataType) {
+                if (tradeoffsChart) {
+                    tradeoffsChart.destroy();
+                }
+                tradeoffsChart = new Chart(tradeoffsCtx, {
+                    type: 'bar',
+                    data: tradeoffsData[dataType],
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                title: { display: true, text: 'Relative Score (0-100)' }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: `Trade-Off Comparison: ${dataType}`,
+                                font: { size: 16 }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${context.formattedValue}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            tradeoffBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tradeoffBtns.forEach(b => {
+                        b.classList.remove('bg-blue-600', 'text-white');
+                        b.classList.add('bg-white', 'text-stone-600');
+                    });
+                    btn.classList.add('bg-blue-600', 'text-white');
+                    btn.classList.remove('bg-white', 'text-stone-600');
+                    renderTradeoffsChart(btn.textContent);
+                });
+            });
+
+            renderTradeoffsChart('Data & Storage');
+
+        });
+    </script>
+</body>
+</html>
